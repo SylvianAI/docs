@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Sylvian API",
+  "name": "Sylvian AI",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -42,8 +42,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/logo_long_light.svg",
+    "dark": "/logo/logo_long_dark.svg"
   },
   "navbar": {
     "links": [
