@@ -12,6 +12,7 @@
     "tabs": [
       {
         "tab": "API reference",
+        "openapi": "https://api.sylvian.ai/openapi.json",
         "groups": [
           {
             "group": "Getting started",
@@ -25,16 +26,16 @@
           {
             "group": "Parse endpoints",
             "pages": [
-              "api-reference/endpoints/parse-form",
-              "api-reference/endpoints/parse-status"
+              "POST /parse",
+              "GET /parse/{job_id}"
             ]
           },
           {
             "group": "Fill endpoints",
             "pages": [
-              "api-reference/endpoints/fill-form",
-              "api-reference/endpoints/fill-status",
-              "api-reference/endpoints/download-filled-pdf"
+              "POST /fill",
+              "GET /fill/{job_id}",
+              "GET /download/{token}"
             ]
           }
         ]
