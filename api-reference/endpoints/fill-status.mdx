@@ -1,0 +1,61 @@
+---
+title: "Get fill job status"
+description: "Poll fill job progress and retrieve download link."
+---
+
+Use this endpoint to monitor a fill job created by `POST /fill`.
+
+## Status lifecycle
+
+- `queued`
+- `running`
+- `succeeded`
+- `failed`
+
+## Response fields
+
+- `status`: current fill state
+- `error`: failure reason when status is `failed`
+- `job_id`: fill job identifier
+- `fill_id`: fill record identifier
+- `download_url`: populated when succeeded
+- `expires_at`: expiration time for `download_url`
+
+## Success criteria
+
+When `status = succeeded`, fetch the generated file via `download_url` or call `GET /download/{token}` directly.
+
+Download links are time-limited and expire after **24 hours**.
+
+## Common failure modes
+
+- `401` missing/invalid auth
+- `404` job not found for authenticated user
+
+## Python example
+
+```python
+import time
+import requests
+
+BASE_URL = "https://api.sylvian.ai"
+API_KEY = "forms_sk_your_key"
+JOB_ID = "<fill-job-id>"
+
+while True:
+    response = requests.get(
+        f"{BASE_URL}/fill/{JOB_ID}",
+        headers={"X-API-Key": API_KEY},
+        timeout=30,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    status = payload.get("status")
+    print("fill status:", status)
+
+    if status in {"succeeded", "failed"}:
+        print(payload)
+        break
+
+    time.sleep(3)
+```

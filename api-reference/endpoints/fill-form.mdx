@@ -1,0 +1,63 @@
+---
+title: "Create fill job"
+description: "Enqueue a form-filling job from parsed form data."
+---
+
+`POST /fill` creates an asynchronous fill job for a previously parsed file.
+
+## What this endpoint does
+
+- Validates auth and file ownership
+- Verifies the parsed file has usable parse output
+- Checks credits for fill usage
+- Creates fill record and queued fill job
+
+## Required input
+
+- `file_id`: ID from a successful parse flow
+- `prompt`: natural-language instructions describing field values
+
+## Units consumed
+
+- Fill consumes **1 unit per page**.
+- Estimate usage based on the page count of the parsed document.
+
+## Success response
+
+`202 Accepted` with:
+
+- `job_id`: fill job identifier for polling
+- `fill_id`: fill record identifier
+
+## Common failure modes
+
+- `400` parsed file has no completed parse output
+- `401` missing/invalid auth
+- `402` insufficient credits
+- `404` parsed file not found or not owned by caller
+
+## Next step
+
+Poll `GET /fill/{job_id}` until it succeeds, then use `download_url`.
+
+## Python example
+
+```python
+import requests
+
+BASE_URL = "https://api.sylvian.ai"
+API_KEY = "forms_sk_your_key"
+FILE_ID = "<parsed-file-id>"
+
+response = requests.post(
+    f"{BASE_URL}/fill",
+    headers={"X-API-Key": API_KEY},
+    data={
+        "file_id": FILE_ID,
+        "prompt": "Fill customer name, date, and signature fields.",
+    },
+    timeout=60,
+)
+response.raise_for_status()
+print(response.json())
+```

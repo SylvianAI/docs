@@ -1,0 +1,51 @@
+---
+title: "Errors and status codes"
+description: "Reference common error responses across Forms API."
+---
+
+Forms API uses standard HTTP status codes plus JSON error payloads for most failures.
+
+## Common status codes
+
+- `200 OK`: synchronous read success
+- `202 Accepted`: async job accepted
+- `400 Bad Request`: request shape is valid but business constraints failed
+- `401 Unauthorized`: missing or invalid auth
+- `402 Payment Required`: insufficient credits
+- `404 Not Found`: job, file, or token not found
+- `410 Gone`: download token expired
+- `422 Unprocessable Entity`: validation error from request parsing
+- `500 Internal Server Error`: unexpected failure
+- `503 Service Unavailable`: required storage/service not available
+
+## Error body patterns
+
+You will commonly see one of these shapes:
+
+```json
+{
+  "status": "error",
+  "error": "Job not found",
+  "job_id": "..."
+}
+```
+
+```json
+{
+  "detail": "Missing or invalid authentication. Provide X-API-Key header."
+}
+```
+
+```json
+{
+  "status": "error",
+  "error": "insufficient_credits",
+  "feature": "parse",
+  "required": 12,
+  "balance": 3
+}
+```
+
+## Validation errors
+
+`422` responses use FastAPI validation format and include `detail` with field-level issues (missing form fields, wrong types, etc.).

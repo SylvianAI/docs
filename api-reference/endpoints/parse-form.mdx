@@ -1,0 +1,67 @@
+---
+title: "Create parse job"
+description: "Upload a PDF and enqueue parsing."
+---
+
+`POST /parse` accepts a PDF file and creates an asynchronous parse job.
+
+## What this endpoint does
+
+- Validates authentication
+- Reads and hashes the uploaded file
+- Optionally serves a cache hit when a prior successful parse exists
+- Creates a parse job for worker processing
+
+## Required input
+
+- `file` (multipart PDF)
+
+## Optional input
+
+- `force` (`true`/`false`): bypass cache
+
+## Units consumed
+
+- Parse consumes **2 units per page**.
+- A 3-page document consumes 6 parse units.
+- Cache hits may return immediately without re-processing.
+
+## Success response
+
+The API returns `202 Accepted` with:
+
+- `job_id`: parse job identifier for polling
+- `file_id`: parsed file identifier for later fill jobs
+- `cached`: whether this request reused a prior successful parse
+
+## Common failure modes
+
+- `400` invalid PDF or unreadable page count
+- `401` missing/invalid auth
+- `402` insufficient credits
+- `503` storage backend unavailable
+
+## Next step
+
+Poll `GET /parse/{job_id}` until status is `succeeded` or `failed`.
+
+## Python example
+
+```python
+import requests
+
+BASE_URL = "https://api.sylvian.ai"
+API_KEY = "forms_sk_your_key"
+
+with open("sample.pdf", "rb") as f:
+    response = requests.post(
+        f"{BASE_URL}/parse",
+        headers={"X-API-Key": API_KEY},
+        files={"file": ("sample.pdf", f, "application/pdf")},
+        data={"force": "false"},
+        timeout=60,
+    )
+
+response.raise_for_status()
+print(response.json())
+```

@@ -1,0 +1,58 @@
+---
+title: "Get parse job status"
+description: "Poll parse job progress and result metadata."
+---
+
+Use this endpoint to monitor a parse job created by `POST /parse`.
+
+## Status lifecycle
+
+- `queued`
+- `running`
+- `succeeded`
+- `failed`
+
+## Response fields
+
+- `status`: current job state
+- `error`: failure reason when status is `failed`
+- `job_id`: parse job identifier
+- `file_id`: parsed file identifier
+- `record`: parsed file metadata (when available)
+
+## Success criteria
+
+When `status` is `succeeded`, keep `file_id` and pass it to `POST /fill`.
+
+## Common failure modes
+
+- `401` missing/invalid auth
+- `404` job not found for authenticated user
+
+## Python example
+
+```python
+import time
+import requests
+
+BASE_URL = "https://api.sylvian.ai"
+API_KEY = "forms_sk_your_key"
+JOB_ID = "<parse-job-id>"
+
+while True:
+    response = requests.get(
+        f"{BASE_URL}/parse/{JOB_ID}",
+        headers={"X-API-Key": API_KEY},
+        timeout=30,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    status = payload.get("status")
+    print("parse status:", status)
+
+    if status in {"succeeded", "failed"}:
+        print(payload)
+        break
+
+    time.sleep(3)
+```

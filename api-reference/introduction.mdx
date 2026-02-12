@@ -1,33 +1,56 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "Forms API overview"
+description: "Parse PDFs and fill forms programmatically."
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+Use the Forms API to parse PDFs, fill forms from natural-language instructions, and download completed documents.
 
-## Welcome
+## Base URL
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+Use your deployed API host:
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+`https://api.sylvian.ai`
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Protected endpoints require:
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+- `X-API-Key: forms_sk_...`
+
+## Core workflow
+
+1. Call `POST /parse` with a PDF file.
+2. Poll `GET /parse/{job_id}` until `status = succeeded`.
+3. Call `POST /fill` with the parsed `file_id` and your prompt.
+4. Poll `GET /fill/{job_id}` until `status = succeeded`.
+5. Download from the returned `download_url`.
+
+This API is asynchronous by design. Write clients to submit work, poll status, then continue once a job succeeds.
+
+## Parse example
+
+```bash
+curl -X POST "https://api.sylvian.ai/parse" \
+  -H "X-API-Key: forms_sk_your_key" \
+  -F "file=@sample.pdf"
 ```
+
+## Fill example
+
+```bash
+curl -X POST "https://api.sylvian.ai/fill" \
+  -H "X-API-Key: forms_sk_your_key" \
+  -F "file_id=<parsed-file-id>" \
+  -F "prompt=Fill in the customer name, date, and signature fields."
+```
+
+## Endpoints
+
+**OpenAPI-backed schemas** from [openapi.json](https://api.sylvian.ai/openapi.json) keep request and response structures in sync with the live API.
+
+- `GET /`
+- `POST /parse`
+- `GET /parse/{job_id}`
+- `POST /fill`
+- `GET /fill/{job_id}`
+- `GET /download/{token}`

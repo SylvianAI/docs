@@ -1,0 +1,44 @@
+---
+title: "Authentication"
+description: "How to authenticate requests to Forms API."
+---
+
+Forms API uses API-key authentication on protected endpoints:
+
+- `X-API-Key: forms_sk_...`
+
+## How to get an API key
+
+1. Sign in to the app.
+2. Go to **Settings**.
+3. Open the **API Keys** section.
+4. Click **Generate** to create a token.
+5. Copy and store it securely (the full key is only shown once).
+
+## API key authentication
+
+Use API keys for server-to-server integrations and backend jobs.
+
+```bash
+curl -X POST "https://api.sylvian.ai/parse" \
+  -H "X-API-Key: forms_sk_your_key" \
+  -F "file=@form.pdf"
+```
+
+## Choosing between auth modes
+
+- Use API keys when your backend calls Forms API.
+- Do not expose API keys in frontend code.
+
+<Warning>
+  Never expose API keys in browser code, public repos, screenshots, logs, or client-side analytics.
+</Warning>
+
+<Warning>
+  Treat API keys like passwords. Anyone with the key can call your API as your account.
+</Warning>
+
+## Common auth failures
+
+- `401 Missing or invalid authentication`: no valid API key was provided.
+- `401`: API key format is wrong, inactive, or unknown.

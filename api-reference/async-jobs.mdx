@@ -1,0 +1,33 @@
+---
+title: "Async jobs and polling"
+description: "Understand queued, running, succeeded, and failed job states."
+---
+
+`/parse` and `/fill` are asynchronous endpoints.
+
+When you submit work, the API returns `202 Accepted` with a `job_id`. You then poll a status endpoint until completion.
+
+## Parse flow
+
+1. `POST /parse` returns `{ job_id, file_id }`
+2. Poll `GET /parse/{job_id}`
+3. On success, use `file_id` as input to `/fill`
+
+## Fill flow
+
+1. `POST /fill` returns `{ job_id, fill_id }`
+2. Poll `GET /fill/{job_id}`
+3. On success, read `download_url` and fetch the PDF
+
+## Job status values
+
+- `queued`: accepted and waiting for worker capacity
+- `running`: worker claimed the job and processing started
+- `succeeded`: result is ready
+- `failed`: terminal error; inspect `error` field
+
+## Polling recommendations
+
+- Poll every 2-5 seconds.
+- Stop polling when `status` is `succeeded` or `failed`.
+- Apply a timeout in your client to avoid infinite retries.

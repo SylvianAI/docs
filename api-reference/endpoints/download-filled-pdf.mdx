@@ -1,0 +1,50 @@
+---
+title: "Download filled PDF"
+description: "Download a completed file using a secure share token."
+---
+
+Use this endpoint to download a completed PDF from a tokenized URL.
+
+## Authentication model
+
+This route is token-protected and does not require API-key headers.
+
+Access is controlled by:
+
+- token existence
+- token expiration
+
+Download links expire after **24 hours** from creation.
+
+## Response behavior
+
+- `200` returns binary PDF content
+- `Content-Disposition` is set for attachment download
+- cache-control headers disable client caching
+
+## Common failure modes
+
+- `404` token does not exist
+- `410` token exists but is expired
+- `500` storage download failure
+
+## Example
+
+```bash
+curl "https://api.sylvian.ai/download/<token>" --output filled.pdf
+```
+
+## Python example
+
+```python
+import requests
+
+BASE_URL = "https://api.sylvian.ai"
+TOKEN = "<download-token>"
+
+response = requests.get(f"{BASE_URL}/download/{TOKEN}", timeout=60)
+response.raise_for_status()
+
+with open("filled.pdf", "wb") as f:
+    f.write(response.content)
+```
